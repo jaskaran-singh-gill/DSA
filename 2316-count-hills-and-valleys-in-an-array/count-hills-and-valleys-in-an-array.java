@@ -1,23 +1,26 @@
 class Solution {
     public int countHillValley(int[] nums) 
-    {List<Integer> simplified = new ArrayList<>();
-        for (int i = 0; i < nums.length; i++) {
-            if (i == 0 || nums[i] != nums[i - 1]) {
-                simplified.add(nums[i]);
+    {
+        int n = nums.length;
+        if (n < 3) return 0;
+        int countHV = 0;
+        int prevSegmentVal = nums[0];
+        int idx = 1;
+        while (idx < n - 1) {
+            int currentVal = nums[idx];
+            int nextIdx = idx;
+            while (nextIdx < n && nums[nextIdx] == currentVal) {
+                nextIdx++;
             }
-        }
-
-        int terrainFeatures = 0;
-        for (int i = 1; i < simplified.size() - 1; i++) {
-            int left = simplified.get(i - 1);
-            int current = simplified.get(i);
-            int right = simplified.get(i + 1);
-
-            if ((current > left && current > right) || (current < left && current < right)) {
-                terrainFeatures++;
+            if (nextIdx >= n) break;
+            int nextVal = nums[nextIdx];
+            if ((currentVal > prevSegmentVal && currentVal > nextVal) || 
+                (currentVal < prevSegmentVal && currentVal < nextVal)) {
+                countHV++;
             }
+            prevSegmentVal = currentVal;
+            idx = nextIdx;
         }
-
-        return terrainFeatures;
+        return countHV;
     }
 }
