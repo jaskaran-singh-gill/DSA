@@ -11,37 +11,31 @@
 class Solution {
     public ListNode mergeKLists(ListNode[] lists)
      {
-        if (lists == null || lists.length == 0) return null;
-        int totalLists = lists.length;
-        while (totalLists > 1) {
-            int mergedIndex = 0;
-            for (int i = 0; i < totalLists; i += 2) {
-                if (i + 1 < totalLists) {
-                    lists[mergedIndex] = mergeTwoLists(lists[i], lists[i + 1]);
-                } else {
-                    lists[mergedIndex] = lists[i];
-                }
-                mergedIndex++;
+         if (lists == null || lists.length == 0) return null;
+        int n = lists.length;
+        while (n > 1) {
+            int mid = (n + 1) / 2;
+            for (int i = 0; i < n / 2; i++) {
+                lists[i] = merge(lists[i], lists[i + mid]);
             }
-            totalLists = mergedIndex;
+            n = mid;
         }
         return lists[0];
     }
-    
-    private ListNode mergeTwoLists(ListNode list1, ListNode list2) {
-        ListNode dummyHead = new ListNode(0);
-        ListNode current = dummyHead;
-        while (list1 != null && list2 != null) {
-            if (list1.val <= list2.val) {
-                current.next = list1;
-                list1 = list1.next;
+
+    private ListNode merge(ListNode a, ListNode b) {
+        ListNode dummy = new ListNode(0), tail = dummy;
+        while (a != null && b != null) {
+            if (a.val < b.val) {
+                tail.next = a;
+                a = a.next;
             } else {
-                current.next = list2;
-                list2 = list2.next;
+                tail.next = b;
+                b = b.next;
             }
-            current = current.next;
+            tail = tail.next;
         }
-        current.next = list1 != null ? list1 : list2;
-        return dummyHead.next;
+        tail.next = (a != null) ? a : b;
+        return dummy.next;
     }
 }
