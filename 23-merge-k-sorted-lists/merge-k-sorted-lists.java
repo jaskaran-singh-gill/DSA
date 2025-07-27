@@ -11,17 +11,23 @@
 class Solution {
     public ListNode mergeKLists(ListNode[] lists)
      {
-
-         if (lists == null || lists.length == 0) return null;
-        PriorityQueue<ListNode> heap = new PriorityQueue<>(lists.length, (a, b) -> a.val - b.val);
-        for (ListNode node : lists) if (node != null) heap.offer(node);
-        ListNode dummy = new ListNode(0), curr = dummy;
-        while (!heap.isEmpty()) {
-            ListNode min = heap.poll();
-            curr.next = min;
-            curr = curr.next;
-            if (min.next != null) heap.offer(min.next);
+if (lists == null || lists.length == 0) return null;
+        PriorityQueue<ListNode> minHeap = new PriorityQueue<>((a, b) -> a.val - b.val);
+        for (ListNode node : lists) {
+            if (node != null) {
+                minHeap.offer(node);
+            }
         }
-        return dummy.next;
+        ListNode dummyHead = new ListNode(0);
+        ListNode tailTracker = dummyHead;
+        while (!minHeap.isEmpty()) {
+            ListNode smallestNode = minHeap.poll();
+            tailTracker.next = smallestNode;
+            tailTracker = tailTracker.next;
+            if (smallestNode.next != null) {
+                minHeap.offer(smallestNode.next);
+            }
+        }
+        return dummyHead.next;
     }
 }
