@@ -1,19 +1,20 @@
 class Solution {
     public int countMaxOrSubsets(int[] nums) 
     {
-      int n = nums.length;
-        int maxOr = 0, count = 0;
+        int max = 0;
+        for (int val : nums) max |= val;
 
-        for (int num : nums) maxOr |= num;
+        int[] result = new int[1];
+        dfs(nums, 0, 0, max, result);
+        return result[0];
+    }
 
-        int total = 1 << n;
-        for (int mask = 1; mask < total; mask++) {
-            int orVal = 0;
-            for (int i = 0; i < n; i++) {
-                if ((mask & (1 << i)) != 0) orVal |= nums[i];
-            }
-            if (orVal == maxOr) count++;
+    private void dfs(int[] nums, int index, int orValue, int target, int[] result) {
+        if (index == nums.length) {
+            if (orValue == target) result[0]++;
+            return;
         }
-        return count;   
+        dfs(nums, index + 1, orValue | nums[index], target, result);
+        dfs(nums, index + 1, orValue, target, result);
     }
 }
