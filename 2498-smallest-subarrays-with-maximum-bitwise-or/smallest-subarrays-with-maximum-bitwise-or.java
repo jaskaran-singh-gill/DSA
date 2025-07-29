@@ -1,23 +1,23 @@
 class Solution {
     public int[] smallestSubarrays(int[] nums) 
     {
-        int len = nums.length;
-        int[] minLens = new int[len];
-        int[] lastSeenBit = new int[32];
-        
-        for (int i = len - 1; i >= 0; i--) {
-            for (int bit = 0; bit < 32; bit++) {
-                if (((nums[i] >> bit) & 1) == 1) {
-                    lastSeenBit[bit] = i;
-                }
+       int n = nums.length;
+        int[] out = new int[n];
+        int[] recent = new int[32];
+        int bitCount = 0;
+
+        for (int i = n - 1; i >= 0; i--) {
+            int val = nums[i];
+            for (int b = 0; b < 32; b++) {
+                if ((val & (1 << b)) != 0) recent[b] = i;
             }
-            int farthest = i;
-            for (int pos : lastSeenBit) {
-                if (pos > farthest) farthest = pos;
+            int max = i;
+            for (int b = 0; b < 32; b++) {
+                if (recent[b] > max) max = recent[b];
             }
-            minLens[i] = farthest - i + 1;
+            out[i] = max - i + 1;
         }
-        
-        return minLens;
+
+        return out;
     }
 }
