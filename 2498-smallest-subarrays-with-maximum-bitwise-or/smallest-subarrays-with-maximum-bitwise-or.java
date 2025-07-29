@@ -1,37 +1,23 @@
 class Solution {
     public int[] smallestSubarrays(int[] nums) 
     {
-      int n = nums.length;
-        int[] suffixOR = new int[n];
-        suffixOR[n - 1] = nums[n - 1];
-        for (int i = n - 2; i >= 0; i--) {
-            suffixOR[i] = nums[i] | suffixOR[i + 1];
-        }
-        
-        int[] nextSet = new int[32];
-        java.util.Arrays.fill(nextSet, -1);
-        int[] ans = new int[n];
-        
+       int n = nums.length;
+        int[] out = new int[n];
+        int[] recent = new int[32];
+        int bitCount = 0;
+
         for (int i = n - 1; i >= 0; i--) {
-            int current = nums[i];
-            for (int k = 0; k < 32; k++) {
-                if ((current >> k & 1) == 1) {
-                    nextSet[k] = i;
-                }
+            int val = nums[i];
+            for (int b = 0; b < 32; b++) {
+                if ((val & (1 << b)) != 0) recent[b] = i;
             }
-            
-            int maxJ = i;
-            int target = suffixOR[i];
-            for (int k = 0; k < 32; k++) {
-                if ((target >> k & 1) == 1) {
-                    if (nextSet[k] != -1 && nextSet[k] > maxJ) {
-                        maxJ = nextSet[k];
-                    }
-                }
+            int max = i;
+            for (int b = 0; b < 32; b++) {
+                if (recent[b] > max) max = recent[b];
             }
-            ans[i] = maxJ - i + 1;
+            out[i] = max - i + 1;
         }
-        
-        return ans;
+
+        return out;
     }
 }
