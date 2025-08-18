@@ -1,27 +1,18 @@
-import java.util.*;
 class Solution {
+    int ans;
     public int maxPathSum(TreeNode root) {
-        int ans = Integer.MIN_VALUE;
-        ArrayDeque<TreeNode> st = new ArrayDeque<>();
-        ArrayDeque<Integer> tag = new ArrayDeque<>();
-        HashMap<TreeNode, Integer> gain = new HashMap<>();
-        if (root == null) return 0;
-        st.push(root); tag.push(0);
-        while (!st.isEmpty()) {
-            TreeNode n = st.pop();
-            int t = tag.pop();
-            if (t == 0) {
-                st.push(n); tag.push(1);
-                if (n.right != null) { st.push(n.right); tag.push(0); }
-                if (n.left != null) { st.push(n.left); tag.push(0); }
-            } else {
-                int l = n.left == null ? 0 : Math.max(0, gain.get(n.left));
-                int r = n.right == null ? 0 : Math.max(0, gain.get(n.right));
-                int through = l + r + n.val;
-                if (through > ans) ans = through;
-                gain.put(n, (l >= r ? l : r) + n.val);
-            }
-        }
+        ans = Integer.MIN_VALUE;
+        dfs(root);
         return ans;
+    }
+    private int dfs(TreeNode n) {
+        if (n == null) return 0;
+        int l = dfs(n.left);
+        if (l < 0) l = 0;
+        int r = dfs(n.right);
+        if (r < 0) r = 0;
+        int s = n.val + l + r;
+        if (s > ans) ans = s;
+        return n.val + (l > r ? l : r);
     }
 }
