@@ -1,94 +1,91 @@
-import java.util.*;
 class Solution {
+    int m,n;
+    int[][] rowPS;
+    int[][] colPS;
     public int minimumSum(int[][] grid) {
-        int n = grid.length, m = grid[0].length;
-        List<int[]> ones = new ArrayList<>();
-        for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) if (grid[i][j] == 1) ones.add(new int[]{i, j});
-        if (ones.size() < 3) return Integer.MAX_VALUE;
-
-        java.util.function.ToIntFunction<List<int[]>> area = subset -> {
-            int minr = Integer.MAX_VALUE, maxr = Integer.MIN_VALUE;
-            int minc = Integer.MAX_VALUE, maxc = Integer.MIN_VALUE;
-            for (int[] p : subset) {
-                minr = Math.min(minr, p[0]);
-                maxr = Math.max(maxr, p[0]);
-                minc = Math.min(minc, p[1]);
-                maxc = Math.max(maxc, p[1]);
-            }
-            return (maxr - minr + 1) * (maxc - minc + 1);
-        };
-
-        int ans = Integer.MAX_VALUE;
-
-        for (int c1 = 0; c1 < m; c1++) {
-            for (int c2 = c1 + 1; c2 < m; c2++) {
-                List<int[]> a = new ArrayList<>(), b = new ArrayList<>(), c = new ArrayList<>();
-                for (int[] p : ones) {
-                    if (p[1] <= c1) a.add(p);
-                    else if (p[1] <= c2) b.add(p);
-                    else c.add(p);
-                }
-                if (!a.isEmpty() && !b.isEmpty() && !c.isEmpty()) {
-                    ans = Math.min(ans, area.applyAsInt(a) + area.applyAsInt(b) + area.applyAsInt(c));
-                }
+        m = grid.length;
+        n = grid[0].length;
+        rowPS = new int[m][n + 1];
+        colPS = new int[n][m + 1];
+        for (int i = 0; i < m; i++) {
+            int[] r = rowPS[i];
+            int s = 0;
+            for (int j = 0; j < n; j++) {
+                s += grid[i][j];
+                r[j + 1] = s;
+                colPS[j][i + 1] = colPS[j][i] + grid[i][j];
             }
         }
-
-        for (int r1 = 0; r1 < n; r1++) {
-            for (int r2 = r1 + 1; r2 < n; r2++) {
-                List<int[]> a = new ArrayList<>(), b = new ArrayList<>(), c = new ArrayList<>();
-                for (int[] p : ones) {
-                    if (p[0] <= r1) a.add(p);
-                    else if (p[0] <= r2) b.add(p);
-                    else c.add(p);
-                }
-                if (!a.isEmpty() && !b.isEmpty() && !c.isEmpty()) {
-                    ans = Math.min(ans, area.applyAsInt(a) + area.applyAsInt(b) + area.applyAsInt(c));
-                }
+        int ans = m * n;
+        for (int i = 0; i < m; i++) {
+            int top = area(0, i, 0, n - 1);
+            for (int j = 0; j < n; j++) {
+                int a = area(i + 1, m - 1, 0, j);
+                int b = area(i + 1, m - 1, j + 1, n - 1);
+                int s = top + a + b;
+                if (s < ans) ans = s;
             }
         }
-
-        for (int r = 0; r < n; r++) {
-            for (int c = 0; c < m; c++) {
-                List<int[]> a = new ArrayList<>(), b = new ArrayList<>(), d = new ArrayList<>();
-                for (int[] p : ones) {
-                    if (p[0] <= r) a.add(p);
-                    else if (p[1] <= c) b.add(p);
-                    else d.add(p);
-                }
-                if (!a.isEmpty() && !b.isEmpty() && !d.isEmpty()) {
-                    ans = Math.min(ans, area.applyAsInt(a) + area.applyAsInt(b) + area.applyAsInt(d));
-                }
-                a.clear(); b.clear(); d.clear();
-                for (int[] p : ones) {
-                    if (p[0] > r) a.add(p);
-                    else if (p[1] <= c) b.add(p);
-                    else d.add(p);
-                }
-                if (!a.isEmpty() && !b.isEmpty() && !d.isEmpty()) {
-                    ans = Math.min(ans, area.applyAsInt(a) + area.applyAsInt(b) + area.applyAsInt(d));
-                }
-                a = new ArrayList<>(); b = new ArrayList<>(); d = new ArrayList<>();
-                for (int[] p : ones) {
-                    if (p[1] <= c) a.add(p);
-                    else if (p[0] <= r) b.add(p);
-                    else d.add(p);
-                }
-                if (!a.isEmpty() && !b.isEmpty() && !d.isEmpty()) {
-                    ans = Math.min(ans, area.applyAsInt(a) + area.applyAsInt(b) + area.applyAsInt(d));
-                }
-                a.clear(); b.clear(); d.clear();
-                for (int[] p : ones) {
-                    if (p[1] > c) a.add(p);
-                    else if (p[0] <= r) b.add(p);
-                    else d.add(p);
-                }
-                if (!a.isEmpty() && !b.isEmpty() && !d.isEmpty()) {
-                    ans = Math.min(ans, area.applyAsInt(a) + area.applyAsInt(b) + area.applyAsInt(d));
-                }
+        for (int i = 0; i < m; i++) {
+            int bottom = area(i, m - 1, 0, n - 1);
+            for (int j = 0; j < n; j++) {
+                int a = area(0, i - 1, 0, j);
+                int b = area(0, i - 1, j + 1, n - 1);
+                int s = bottom + a + b;
+                if (s < ans) ans = s;
             }
         }
-
+        for (int j = 0; j < n; j++) {
+            int left = area(0, m - 1, 0, j);
+            for (int i = 0; i < m; i++) {
+                int a = area(0, i, j + 1, n - 1);
+                int b = area(i + 1, m - 1, j + 1, n - 1);
+                int s = left + a + b;
+                if (s < ans) ans = s;
+            }
+        }
+        for (int j = 0; j < n; j++) {
+            int right = area(0, m - 1, j, n - 1);
+            for (int i = 0; i < m; i++) {
+                int a = area(0, i, 0, j - 1);
+                int b = area(i + 1, m - 1, 0, j - 1);
+                int s = right + a + b;
+                if (s < ans) ans = s;
+            }
+        }
+        for (int i1 = 0; i1 < m; i1++) {
+            for (int i2 = i1 + 1; i2 < m; i2++) {
+                int s = area(0, i1, 0, n - 1) + area(i1 + 1, i2, 0, n - 1) + area(i2 + 1, m - 1, 0, n - 1);
+                if (s < ans) ans = s;
+            }
+        }
+        for (int j1 = 0; j1 < n; j1++) {
+            for (int j2 = j1 + 1; j2 < n; j2++) {
+                int s = area(0, m - 1, 0, j1) + area(0, m - 1, j1 + 1, j2) + area(0, m - 1, j2 + 1, n - 1);
+                if (s < ans) ans = s;
+            }
+        }
         return ans;
+    }
+    private int area(int si, int ei, int sj, int ej) {
+        if (si > ei || sj > ej) return 0;
+        int top = -1;
+        for (int i = si; i <= ei; i++) {
+            if (rowPS[i][ej + 1] - rowPS[i][sj] > 0) { top = i; break; }
+        }
+        if (top == -1) return 0;
+        int bottom = -1;
+        for (int i = ei; i >= si; i--) {
+            if (rowPS[i][ej + 1] - rowPS[i][sj] > 0) { bottom = i; break; }
+        }
+        int left = -1;
+        for (int j = sj; j <= ej; j++) {
+            if (colPS[j][bottom + 1] - colPS[j][top] > 0) { left = j; break; }
+        }
+        int right = -1;
+        for (int j = ej; j >= sj; j--) {
+            if (colPS[j][bottom + 1] - colPS[j][top] > 0) { right = j; break; }
+        }
+        return (bottom - top + 1) * (right - left + 1);
     }
 }
